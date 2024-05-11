@@ -11,8 +11,8 @@ const sfxDiceRoll = new Audio('../assets/sounds/sfx_dice_roll.mp3');
 const sfxInHome = new Audio('../assets/sounds/sfx_in_home.mp3');
 sfxInHome.volume = 0.1;
 const sfxWin = new Audio('../assets/sounds/sfx_win.mp3');
-let mov=[6,1,6,6,1,1,1,6,6,1,1,1,1,1,1,1,1,1,1]
-let simulation=0
+let mov = [6, 1, 6, 6, 1, 1, 1, 6, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1]
+let simulation = 0
 
 function Position(length) {
     for (let i = 1; i <= length; i++) {
@@ -95,16 +95,15 @@ function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     //The maximum is exclusive and the minimum is inclusive
-   // return Math.floor(Math.random() * (max - min)) + min;
+    // return Math.floor(Math.random() * (max - min)) + min;
 
     // return 6;
-    let value=mov[simulation]
+    let value = mov[simulation]
     simulation++
     return value
 }
 //check if all pawns in last line can be moved
 function pawnsInLastLineCanMove(color) {
-    console.log("PAWNS LAST LINE CAN MOVE")
     let canMove = false;
     Object.keys(lastLine[color]).forEach(pos => {
         lastLine[color][pos].forEach(pawn => {
@@ -116,12 +115,10 @@ function pawnsInLastLineCanMove(color) {
     return canMove;
 }
 function pawnsInPrivateCanMove(color) {
-    console.log("PAWNS IN PRIVATE CAN MOVE", color)
     return privateAreas[color].length > 0 && diceValue == 6;
 }
 
 function pawnsNumberInOuter(color) {
-    // console.log("PAWS NUMBER IN OUTER")
     let number = 0;
     Object.keys(outerPosition).forEach(pos => {
         outerPosition[pos].forEach(pawn => {
@@ -130,7 +127,6 @@ function pawnsNumberInOuter(color) {
             }
         });
     });
-    console.log("PAWS NUMBER IN OUTER", number)
     return number;
 }
 
@@ -223,14 +219,10 @@ function getNextCell(pawn) {
                 next.cell = nextCell;
             }
 
-             //check if there is another opponent's pawn in the box
-             console.log("Ato", outerPosition[nextCell].length)
-             console.log("Next Cell: ",nextCell)
-             console.log("Next cell is safe position",)
-             console.log("tokony hiditra condition", outerPosition[nextCell].length > 0)
-             if (outerPosition[nextCell].length ==1 && safePos.indexOf(nextCell) < 0 ) {
-                 returnAPawnToItsPrivate(pawn, nextCell)
-             }
+            //check if there is another opponent's pawn in the box
+            if (outerPosition[nextCell].length == 1 && safePos.indexOf(nextCell) < 0) {
+                returnAPawnToItsPrivate(pawn, nextCell)
+            }
         }
 
     } else if (pawn.area == 'last-line') {
@@ -246,11 +238,12 @@ function getNextCell(pawn) {
     return next;
 }
 function highlightPawn(pawn) {
-    console.log("PAWN: ", pawn)
+    //move automatically if it is the only pawn of the player outside
+    var pawnColor = turnOrder[currentTurn]
+    var pawnOutside = pawnsNumberInOuter(pawnColor)
     getPawnElem(pawn).addClass('highlight');
     removeEventFromDice();
     $('.pawn.' + pawn.name).on('click', function () {
-
         //if the pawn is in the private area
         if (pawn.area == 'private') {
             //move the pawn to the starting cell
@@ -264,7 +257,6 @@ function highlightPawn(pawn) {
             outerPosition[pawn.currentCell].push(pawn);
 
         } else if (pawn.area == 'outer') {
-            console.log("Aty ivelany private")
             //move the pawn to the next cell
             let next = getNextCell(pawn);
             //remove the pawn from the current cell
@@ -306,16 +298,16 @@ function highlightPawn(pawn) {
                 putPawn(pawn, pawn.color + "-home-" + homeAreas[pawn.color].length);
             }
         }
-
-
         //remove the highlight
         removeAllHightlight(pawn.color);
         // logBoard();
         nextTurn();
         attachEventToDice();
         highlightDice();
-
     });
+
+
+
 }
 function removeHighlightPawn(pawn) {
     getPawnElem(pawn).removeClass('highlight');
@@ -383,18 +375,13 @@ function removeEventFromDice() {
 }
 
 function returnAPawnToItsPrivate(pawn, nextCell) {
-    console.log("Tratra ve ?", nextCell)
-
-    console.log("ATO INDRAY", outerPosition[nextCell])
     //another oppent's pawn
     Object.keys(outerPosition[nextCell]).forEach(position => {
         let otherPawn = outerPosition[nextCell][position]
-        console.log("Other pawn :", otherPawn)
         if (otherPawn.color != pawn.color) {
             //move the other pawn to their private area
             otherPawn.area = 'private';
             otherPawn.currentCell = otherPawn.color + "-private-" + otherPawn.id;
-            console.log("Other Pawn :",otherPawn)
             putPawn(otherPawn, otherPawn.currentCell);
             privateAreas[otherPawn.color].push(otherPawn);
             outerPosition[nextCell].splice(otherPawn, 1);
