@@ -95,9 +95,12 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     //The maximum is exclusive and the minimum is inclusive
     return Math.floor(Math.random() * (max - min)) + min;
+
+    // return 6;
 }
 //check if all pawns in last line can be moved
 function pawnsInLastLineCanMove(color) {
+    console.log("PAWNS LAST LINE CAN MOVE")
     let canMove = false;
     Object.keys(lastLine[color]).forEach(pos => {
         lastLine[color][pos].forEach(pawn => {
@@ -109,10 +112,12 @@ function pawnsInLastLineCanMove(color) {
     return canMove;
 }
 function pawnsInPrivateCanMove(color) {
+    console.log("PAWNS IN PRIVATE CAN MOVE", color)
     return privateAreas[color].length > 0 && diceValue == 6;
 }
 
 function pawnsNumberInOuter(color) {
+    // console.log("PAWS NUMBER IN OUTER")
     let number = 0;
     Object.keys(outerPosition).forEach(pos => {
         outerPosition[pos].forEach(pawn => {
@@ -121,6 +126,7 @@ function pawnsNumberInOuter(color) {
             }
         });
     });
+    console.log("PAWS NUMBER IN OUTER", number)
     return number;
 }
 
@@ -189,6 +195,8 @@ function getNextCell(pawn) {
     let startCell = parseInt(pawn.startCell);
     let endCell = parseInt(pawn.endCell);
     let nextCell = currentCell + diceValue;
+
+
     if (pawn.area == 'private') {
         next.area = 'outer';
         next.cell = pawn.startCell;
@@ -203,6 +211,14 @@ function getNextCell(pawn) {
                 next.area = 'home';
             }
         } else {
+            //check if there is another opponent's pawn in the box
+            console.log("Ato", outerPosition[nextCell].length)
+            console.log("tokony hiditra condition", outerPosition[nextCell].length > 0)
+            if (outerPosition[nextCell].length > 0) {
+                returnAPawnToItsPrivate(pawn, nextCell)
+            }
+
+
             if (nextCell > 52) {
                 let remaining = nextCell - 52;
                 next.cell = remaining;
@@ -225,6 +241,7 @@ function getNextCell(pawn) {
     return next;
 }
 function highlightPawn(pawn) {
+    console.log("PAWN: ", pawn)
     getPawnElem(pawn).addClass('highlight');
     removeEventFromDice();
     $('.pawn.' + pawn.name).on('click', function () {
@@ -242,6 +259,7 @@ function highlightPawn(pawn) {
             outerPosition[pawn.currentCell].push(pawn);
 
         } else if (pawn.area == 'outer') {
+            console.log("Aty ivelany private")
             //move the pawn to the next cell
             let next = getNextCell(pawn);
             //remove the pawn from the current cell
@@ -358,6 +376,28 @@ function removeEventFromDice() {
     removeHighlightDice();
     $('.dashboard .dice-section').unbind();
 }
+
+function returnAPawnToItsPrivate(pawn, nextCell) {
+    console.log("Tratra ve ?", nextCell)
+
+    console.log("ATO INDRAY", outerPosition[nextCell])
+    //another oppent's pawn
+    Object.keys(outerPosition[nextCell]).forEach(position => {
+        let otherPawn = outerPosition[nextCell][position]
+        console.log("Other pawn :", otherPawn)
+        if (otherPawn.color != pawn.color) {
+            //move the other pawn to their private area
+            otherPawn.area = 'private';
+            otherPawn.currentCell = otherPawn.color + "-private-" + otherPawn.id;
+            putPawn(otherPawn, otherPawn.currentCell);
+            privateAreas[otherPawn.color].push(otherPawn);
+            outerPosition[otherPawn.currentCell].splice(outerPosition[otherPawn.currentCell].indexOf(otherPawn), 1);
+
+        }
+    });
+
+}
+
 //initialize the board
 
 function initGame() {
