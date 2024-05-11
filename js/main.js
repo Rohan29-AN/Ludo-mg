@@ -11,7 +11,8 @@ const sfxDiceRoll = new Audio('../assets/sounds/sfx_dice_roll.mp3');
 const sfxInHome = new Audio('../assets/sounds/sfx_in_home.mp3');
 sfxInHome.volume = 0.1;
 const sfxWin = new Audio('../assets/sounds/sfx_win.mp3');
-
+let mov=[6,1,6,6,1,1,1,6,6,1,1,1,1,1,1,1,1]
+let simulation=0
 
 function Position(length) {
     for (let i = 1; i <= length; i++) {
@@ -94,9 +95,12 @@ function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     //The maximum is exclusive and the minimum is inclusive
-    return Math.floor(Math.random() * (max - min)) + min;
+   // return Math.floor(Math.random() * (max - min)) + min;
 
     // return 6;
+    let value=mov[simulation]
+    simulation++
+    return value
 }
 //check if all pawns in last line can be moved
 function pawnsInLastLineCanMove(color) {
@@ -211,14 +215,7 @@ function getNextCell(pawn) {
                 next.area = 'home';
             }
         } else {
-            //check if there is another opponent's pawn in the box
-            console.log("Ato", outerPosition[nextCell].length)
-            console.log("tokony hiditra condition", outerPosition[nextCell].length > 0)
-            if (outerPosition[nextCell].length > 0) {
-                returnAPawnToItsPrivate(pawn, nextCell)
-            }
-
-
+           
             if (nextCell > 52) {
                 let remaining = nextCell - 52;
                 next.cell = remaining;
@@ -226,6 +223,15 @@ function getNextCell(pawn) {
             } else {
                 next.cell = nextCell;
             }
+
+             //check if there is another opponent's pawn in the box
+             console.log("Ato", outerPosition[nextCell].length)
+             console.log("Next Cell: ",nextCell)
+             console.log("Next cell is safe position",)
+             console.log("tokony hiditra condition", outerPosition[nextCell].length > 0)
+             if (outerPosition[nextCell].length > 0 && safePos.indexOf(nextCell) < 0) {
+                 returnAPawnToItsPrivate(pawn, nextCell)
+             }
         }
 
     } else if (pawn.area == 'last-line') {
