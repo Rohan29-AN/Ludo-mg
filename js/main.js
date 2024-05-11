@@ -11,7 +11,7 @@ const sfxDiceRoll = new Audio('../assets/sounds/sfx_dice_roll.mp3');
 const sfxInHome = new Audio('../assets/sounds/sfx_in_home.mp3');
 sfxInHome.volume = 0.1;
 const sfxWin = new Audio('../assets/sounds/sfx_win.mp3');
-let mov=[6,1,6,6,1,1,1,6,6,1,1,1,1,1,1,1,1]
+let mov=[6,1,6,6,1,1,1,6,6,1,1,1,1,1,1,1,1,1,1]
 let simulation=0
 
 function Position(length) {
@@ -215,7 +215,6 @@ function getNextCell(pawn) {
                 next.area = 'home';
             }
         } else {
-           
             if (nextCell > 52) {
                 let remaining = nextCell - 52;
                 next.cell = remaining;
@@ -229,7 +228,7 @@ function getNextCell(pawn) {
              console.log("Next Cell: ",nextCell)
              console.log("Next cell is safe position",)
              console.log("tokony hiditra condition", outerPosition[nextCell].length > 0)
-             if (outerPosition[nextCell].length > 0 && safePos.indexOf(nextCell) < 0) {
+             if (outerPosition[nextCell].length ==1 && safePos.indexOf(nextCell) < 0 ) {
                  returnAPawnToItsPrivate(pawn, nextCell)
              }
         }
@@ -395,9 +394,10 @@ function returnAPawnToItsPrivate(pawn, nextCell) {
             //move the other pawn to their private area
             otherPawn.area = 'private';
             otherPawn.currentCell = otherPawn.color + "-private-" + otherPawn.id;
+            console.log("Other Pawn :",otherPawn)
             putPawn(otherPawn, otherPawn.currentCell);
             privateAreas[otherPawn.color].push(otherPawn);
-            outerPosition[otherPawn.currentCell].splice(outerPosition[otherPawn.currentCell].indexOf(otherPawn), 1);
+            outerPosition[nextCell].splice(otherPawn, 1);
 
         }
     });
